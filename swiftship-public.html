@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SwiftShip — Delivered Fast, Delivered Right</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0d;
+    --paper: #f5f0e8;
+    --amber: #f5a623;
+    --amber-dark: #c47e0a;
+    --rust: #c94b2a;
+    --slate: #3a3a3a;
+    --mid: #888;
+    --border: rgba(13,13,13,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    border-bottom: 2px solid var(--ink);
+    position: sticky; top: 0; z-index: 100;
+    background: var(--paper);
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .logo span { color: var(--amber); }
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav ul li a {
+    text-decoration: none; color: var(--ink);
+    font-size: 0.85rem; font-weight: 500; letter-spacing: 0.5px;
+    text-transform: uppercase;
+    position: relative;
+  }
+  nav ul li a::after {
+    content: '';
+    position: absolute; bottom: -2px; left: 0;
+    width: 0; height: 2px;
+    background: var(--amber);
+    transition: width 0.25s ease;
+  }
+  nav ul li a:hover::after { width: 100%; }
+  .nav-cta {
+    background: var(--ink); color: var(--paper) !important;
+    padding: 10px 24px; border-radius: 2px;
+    transition: background 0.2s !important;
+  }
+  .nav-cta:hover { background: var(--amber) !important; color: var(--ink) !important; }
+  .nav-cta::after { display: none !important; }
+
+  /* HERO */
+  .hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 88vh;
+    border-bottom: 2px solid var(--ink);
+  }
+  .hero-left {
+    padding: 80px 48px 80px 48px;
+    display: flex; flex-direction: column; justify-content: center;
+    border-right: 2px solid var(--ink);
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--rust);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 2px; background: var(--rust); }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 10vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: -1px;
+    margin-bottom: 32px;
+  }
+  .hero h1 em { color: var(--amber); font-style: normal; }
+  .hero-sub {
+    font-size: 1.1rem; font-weight: 300; color: var(--slate);
+    line-height: 1.7; max-width: 420px; margin-bottom: 48px;
+  }
+  .btn-group { display: flex; gap: 16px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 15px 32px; font-size: 0.9rem; font-weight: 500;
+    text-decoration: none; border: 2px solid var(--ink);
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .btn-primary { background: var(--ink); color: var(--paper); }
+  .btn-primary:hover { background: var(--amber); border-color: var(--amber); color: var(--ink); }
+  .btn-secondary { background: transparent; color: var(--ink); }
+  .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+
+  .hero-right {
+    background: var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+  .hero-right::before {
+    content: 'TRACK';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22vw; color: rgba(255,255,255,0.03);
+    letter-spacing: -4px; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* TRACK BOX */
+  .track-box {
+    background: var(--paper);
+    border: 3px solid var(--amber);
+    padding: 40px 36px;
+    width: 100%; max-width: 420px;
+    position: relative;
+    z-index: 2;
+  }
+  .track-box h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem; letter-spacing: 2px;
+    margin-bottom: 8px; color: var(--ink);
+  }
+  .track-box p { font-size: 0.85rem; color: var(--mid); margin-bottom: 28px; }
+  .track-input-wrap {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .track-input-wrap input {
+    width: 100%; padding: 14px 16px;
+    border: 2px solid var(--ink);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; color: var(--ink);
+    letter-spacing: 2px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .track-input-wrap input::placeholder { color: var(--mid); letter-spacing: 1px; }
+  .track-input-wrap input:focus { border-color: var(--amber); }
+  .track-btn {
+    width: 100%; padding: 14px;
+    background: var(--amber);
+    border: 2px solid var(--amber);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem; letter-spacing: 3px;
+    cursor: pointer; color: var(--ink);
+    transition: all 0.2s;
+  }
+  .track-btn:hover { background: var(--ink); color: var(--amber); border-color: var(--ink); }
+
+  /* TRACKING RESULT */
+  #tracking-result {
+    display: none;
+    margin-top: 24px;
+    border-top: 2px solid var(--border);
+    padding-top: 24px;
+  }
+  #tracking-result.active { display: block; }
+  .result-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .result-id { font-size: 0.75rem; color: var(--mid); letter-spacing: 2px; text-transform: uppercase; }
+  .result-status {
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    border-radius: 2px;
+  }
+  .status-transit { background: #fef3c7; color: #92400e; }
+  .status-delivered { background: #d1fae5; color: #065f46; }
+  .status-processing { background: #e0e7ff; color: #3730a3; }
+
+  .timeline { list-style: none; position: relative; padding-left: 20px; }
+  .timeline::before {
+    content: ''; position: absolute; left: 6px; top: 8px;
+    bottom: 8px; width: 2px; background: var(--border);
+  }
+  .timeline li {
+    position: relative; padding: 0 0 18px 20px;
+    font-size: 0.82rem;
+  }
+  .timeline li::before {
+    content: ''; position: absolute; left: -14px; top: 5px;
+    width: 10px; height: 10px; border-radius: 50%;
+    border: 2px solid var(--border); background: var(--paper);
+  }
+  .timeline li.done::before { background: var(--amber); border-color: var(--amber); }
+  .timeline li.active::before { background: var(--rust); border-color: var(--rust); box-shadow: 0 0 0 3px rgba(201,75,42,0.2); }
+  .tl-time { color: var(--mid); font-size: 0.72rem; margin-top: 2px; }
+
+  /* STATS STRIP */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 2px solid var(--ink);
+  }
+  .stat {
+    padding: 48px 36px;
+    border-right: 2px solid var(--ink);
+    animation: fadeUp 0.6s ease both;
+  }
+  .stat:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.5rem; letter-spacing: -1px;
+    color: var(--ink); line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-num span { color: var(--amber); }
+  .stat-label { font-size: 0.8rem; color: var(--mid); text-transform: uppercase; letter-spacing: 2px; }
+
+  /* SERVICES */
+  .services { padding: 100px 48px; border-bottom: 2px solid var(--ink); }
+  .section-header { display: flex; align-items: baseline; gap: 24px; margin-bottom: 64px; }
+  .section-tag {
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 4px;
+    color: var(--rust); font-weight: 600;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: 1px;
+  }
+
+  .services-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; border: 2px solid var(--ink);
+  }
+  .service-card {
+    padding: 40px 36px;
+    border-right: 2px solid var(--ink);
+    transition: background 0.2s;
+    cursor: default;
+  }
+  .service-card:last-child { border-right: none; }
+  .service-card:hover { background: var(--ink); color: var(--paper); }
+  .service-card:hover .service-icon { color: var(--amber); }
+  .service-card:hover .service-desc { color: rgba(245,240,232,0.6); }
+  .service-icon { font-size: 2.5rem; margin-bottom: 20px; display: block; transition: color 0.2s; }
+  .service-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem; letter-spacing: 1px; margin-bottom: 12px;
+  }
+  .service-desc { font-size: 0.85rem; line-height: 1.7; color: var(--slate); transition: color 0.2s; }
+
+  /* HOW IT WORKS */
+  .how { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 2px solid var(--ink); }
+  .how-left {
+    padding: 100px 48px;
+    border-right: 2px solid var(--ink);
+    background: var(--ink); color: var(--paper);
+  }
+  .how-left .section-tag { color: var(--amber); }
+  .how-left .section-title { color: var(--paper); }
+  .steps { margin-top: 48px; list-style: none; }
+  .step { display: flex; gap: 24px; padding: 24px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; color: var(--amber); line-height: 1;
+    min-width: 48px;
+  }
+  .step-title { font-weight: 600; margin-bottom: 6px; }
+  .step-desc { font-size: 0.85rem; color: rgba(245,240,232,0.6); line-height: 1.6; }
+
+  .how-right { padding: 100px 48px; display: flex; flex-direction: column; justify-content: center; }
+  .how-right .section-tag { color: var(--rust); }
+
+  .guarantee-list { list-style: none; margin-top: 36px; }
+  .guarantee-item {
+    display: flex; gap: 16px; padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .guarantee-item:last-child { border-bottom: none; }
+  .g-icon { color: var(--amber); font-size: 1.2rem; min-width: 24px; }
+
+  /* FOOTER */
+  footer {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 0; padding: 64px 48px;
+    border-top: 2px solid var(--ink);
+    background: var(--ink); color: var(--paper);
+  }
+  footer > div { padding-right: 48px; }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 2.5rem; margin-bottom: 16px; }
+  .footer-logo span { color: var(--amber); }
+  .footer-tagline { font-size: 0.85rem; color: rgba(245,240,232,0.5); line-height: 1.7; max-width: 280px; }
+  .footer-col h4 { font-size: 0.7rem; letter-spacing: 3px; text-transform: uppercase; color: var(--amber); margin-bottom: 20px; }
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a { color: rgba(245,240,232,0.6); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--paper); }
+  .footer-bottom {
+    padding: 20px 48px; background: var(--ink); color: rgba(245,240,232,0.3);
+    font-size: 0.75rem; display: flex; justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid var(--ink); border-top-color: transparent;
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 32px; right: 32px;
+    background: var(--ink); color: var(--paper);
+    padding: 14px 24px; font-size: 0.85rem;
+    border-left: 4px solid var(--amber);
+    transform: translateX(120%); transition: transform 0.3s ease;
+    z-index: 10000;
+  }
+  .toast.show { transform: translateX(0); }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    nav ul { display: none; }
+    .hero { grid-template-columns: 1fr; min-height: auto; }
+    .hero-right { min-height: 60vh; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .stat:nth-child(2) { border-right: none; }
+    .stat:nth-child(3) { border-top: 2px solid var(--ink); }
+    .stat:nth-child(4) { border-top: 2px solid var(--ink); border-right: none; }
+    .services { padding: 60px 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .service-card { border-right: none; border-bottom: 2px solid var(--ink); }
+    .service-card:last-child { border-bottom: none; }
+    .how { grid-template-columns: 1fr; }
+    .how-left { border-right: none; border-bottom: 2px solid var(--ink); }
+    .how-left, .how-right { padding: 60px 24px; }
+    footer { grid-template-columns: 1fr 1fr; gap: 40px; padding: 48px 24px; }
+    .footer-bottom { padding: 16px 24px; flex-direction: column; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">Swift<span>Ship</span></a>
+  <ul>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#track">Track</a></li>
+    <li><a href="#" class="nav-cta">Get a Quote</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow">Global Delivery Network</div>
+    <h1>Move<br><em>Fast.</em><br>Move<br>Right.</h1>
+    <p class="hero-sub">SwiftShip delivers your packages across 180+ countries with real-time tracking, guaranteed timelines, and zero excuses.</p>
+    <div class="btn-group">
+      <a href="#services" class="btn btn-primary">Our Services →</a>
+      <a href="#track" class="btn btn-secondary">Track a Package</a>
+    </div>
+  </div>
+  <div class="hero-right" id="track">
+    <div class="track-box">
+      <h2>Track Your Shipment</h2>
+      <p>Enter your tracking number below to see real-time status</p>
+      <div class="track-input-wrap">
+        <input type="text" id="tracking-input" placeholder="e.g. SWS-2849301-NG" maxlength="20" />
+        <button class="track-btn" onclick="trackPackage()">TRACK NOW</button>
+      </div>
+      <div id="tracking-result">
+        <div class="result-header">
+          <div>
+            <div class="result-id" id="result-id"></div>
+            <div style="font-weight:600; margin-top:4px; font-size:0.9rem;" id="result-dest"></div>
+          </div>
+          <div class="result-status" id="result-status-badge"></div>
+        </div>
+        <ul class="timeline" id="timeline"></ul>
+        <div style="margin-top:16px; padding:12px; background:rgba(245,166,35,0.1); border-left:3px solid var(--amber); font-size:0.8rem;" id="result-eta"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stat"><div class="stat-num">12<span>M+</span></div><div class="stat-label">Packages Delivered</div></div>
+  <div class="stat"><div class="stat-num">180<span>+</span></div><div class="stat-label">Countries Covered</div></div>
+  <div class="stat"><div class="stat-num">99<span>.4%</span></div><div class="stat-label">On-Time Rate</div></div>
+  <div class="stat"><div class="stat-num">24<span>/7</span></div><div class="stat-label">Live Support</div></div>
+</section>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="section-header">
+    <span class="section-tag">What We Offer</span>
+    <h2 class="section-title">Shipping Solutions</h2>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <span class="service-icon">⚡</span>
+      <div class="service-name">Express Delivery</div>
+      <p class="service-desc">Next-day and same-day delivery for urgent shipments. Available in 60+ major cities worldwide with hourly tracking updates.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">🌍</span>
+      <div class="service-name">International Freight</div>
+      <p class="service-desc">Air and sea freight solutions for businesses moving volume across borders. Full customs clearance included.</p>
+    </div>
+    <div class="service-card">
+      <span class="service-icon">📦</span>
+      <div class="service-name">Warehousing & 3PL</div>
+      <p class="service-desc">Store, pick, pack, and ship from our network of 40+ fulfillment centers. Scale on demand, pay for what you use.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-left">
+    <span class="section-tag">The Process</span>
+    <h2 class="section-title" style="color:var(--paper)">How SwiftShip Works</h2>
+    <ul class="steps">
+      <li class="step">
+        <span class="step-num">01</span>
+        <div><div class="step-title">Book Online or via API</div><div class="step-desc">Schedule a pickup in under 2 minutes on our platform or integrate directly with your e-commerce store via our API.</div></div>
+      </li>
+      <li class="step">
+        <span class="step-num">02</span>
+        <div><div class="step-title">We Pick It Up</div><div class="step-desc">Our local courier arrives within the selected window. No waiting around — we're on time or it's free.</div></div>
+      </li>
+      <li class="step">
+        <span class="step-num">03</span>
+        <div><div class="step-title">Real-Time Tracking</div><div class="step-desc">Your tracking number goes live instantly. SMS, email, and in-app updates at every milestone.</div></div>
+      </li>
+      <li class="step">
+        <span class="step-num">04</span>
+        <div><div class="step-title">Delivered & Confirmed</div><div class="step-desc">Photo proof of delivery sent automatically. Disputes resolved within 24 hours, guaranteed.</div></div>
+      </li>
+    </ul>
+  </div>
+  <div class="how-right">
+    <span class="section-tag">Our Promise</span>
+    <h2 class="section-title">Built on Trust</h2>
+    <ul class="guarantee-list">
+      <li class="guarantee-item"><span class="g-icon">★</span><div><strong>On-Time Guarantee</strong><br><span style="font-size:0.82rem;color:var(--mid)">Late delivery? We refund your shipping cost, no questions asked.</span></div></li>
+      <li class="guarantee-item"><span class="g-icon">🔒</span><div><strong>Full Package Insurance</strong><br><span style="font-size:0.82rem;color:var(--mid)">Every shipment covered up to $500 by default. Extended coverage available.</span></div></li>
+      <li class="guarantee-item"><span class="g-icon">📍</span><div><strong>Live GPS Tracking</strong><br><span style="font-size:0.82rem;color:var(--mid)">See your package move in real time on an interactive map.</span></div></li>
+      <li class="guarantee-item"><span class="g-icon">💬</span><div><strong>24/7 Human Support</strong><br><span style="font-size:0.82rem;color:var(--mid)">Talk to a real person anytime — not a bot, not a script.</span></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">Swift<span>Ship</span></div>
+    <p class="footer-tagline">Delivering packages and peace of mind across 180+ countries since 2015.</p>
+  </div>
+  <div class="footer-col">
+    <h4>Services</h4>
+    <ul>
+      <li><a href="#">Express Delivery</a></li>
+      <li><a href="#">International Freight</a></li>
+      <li><a href="#">Warehousing</a></li>
+      <li><a href="#">API Integration</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Company</h4>
+    <ul>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Careers</a></li>
+      <li><a href="#">Press</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <h4>Legal</h4>
+    <ul>
+      <li><a href="#">Terms of Service</a></li>
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Cookie Policy</a></li>
+      <li><a href="#">Insurance Terms</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2026 SwiftShip Ltd. All rights reserved.</span>
+  <span>Built for speed. Trusted for reliability.</span>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// SWIFTSHIP PUBLIC TRACKING — powered by JSONBin.io
+// Replace BIN_ID and API_KEY below with your own from jsonbin.io
+// ─────────────────────────────────────────────────────────────
+const BIN_ID  = '69a2ea6243b1c97be9a676f4';   // e.g. 6630f1aee41b4d34e41f4c28
+const API_KEY = '$2a$10$8QSjhjUGNu/BggTh3U0DqegtpiVTwK1o0CQo.HRX1alHKrx4fcvai';  // e.g. $2a$10$abc123...
+const BIN_URL = `https://api.jsonbin.io/v3/b/${BIN_ID}/latest`;
+
+let shipmentCache = null;
+
+async function fetchShipments() {
+  if (shipmentCache) return shipmentCache;
+  try {
+    const res = await fetch(BIN_URL, {
+      headers: { 'X-Access-Key': API_KEY }
+    });
+    const data = await res.json();
+    shipmentCache = data.record.shipments || [];
+    return shipmentCache;
+  } catch(e) {
+    console.error('Failed to load shipments', e);
+    return [];
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+async function trackPackage() {
+  const raw = document.getElementById('tracking-input').value.trim().toUpperCase();
+  const result = document.getElementById('tracking-result');
+  const btn = document.querySelector('.track-btn');
+
+  if (!raw) { showToast('Please enter a tracking number'); return; }
+
+  btn.innerHTML = '<span class="spinner"></span>SEARCHING...';
+  btn.disabled = true;
+  shipmentCache = null; // always fetch fresh
+
+  const shipments = await fetchShipments();
+  btn.innerHTML = 'TRACK NOW';
+  btn.disabled = false;
+
+  const pkg = shipments.find(s => s.id === raw);
+
+  if (!pkg) {
+    showToast('No package found. Check your tracking number.');
+    result.classList.remove('active');
+    return;
+  }
+
+  const statusLabels = { 'in-transit':'In Transit', 'delivered':'Delivered', 'processing':'Processing', 'pending':'Pending' };
+
+  document.getElementById('result-id').textContent = raw;
+  document.getElementById('result-dest').textContent = `${pkg.origin} → ${pkg.dest}`;
+
+  const badge = document.getElementById('result-status-badge');
+  badge.textContent = statusLabels[pkg.status] || pkg.status;
+  badge.className = 'result-status';
+  if (pkg.status === 'in-transit') badge.classList.add('status-transit');
+  else if (pkg.status === 'delivered') badge.classList.add('status-delivered');
+  else badge.classList.add('status-processing');
+
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = (pkg.events || []).map(e => `
+    <li class="${e.done ? 'done' : ''} ${e.current ? 'active' : ''}">
+      <div>${e.label}</div>
+      <div class="tl-time">${e.time}</div>
+    </li>
+  `).join('');
+
+  const etaMap = {
+    'delivered': `✅ Delivered. Last updated: ${pkg.updatedAt}`,
+    'in-transit': pkg.eta ? `📅 Estimated Delivery: ${pkg.eta}` : `📅 In transit — ETA to be confirmed`,
+    'processing': pkg.eta ? `⏳ Estimated Delivery: ${pkg.eta}. Currently processing.` : `⏳ Processing at origin facility`,
+    'pending': `🕐 Shipment pending pickup`,
+  };
+  document.getElementById('result-eta').textContent = etaMap[pkg.status] || '';
+  result.classList.add('active');
+}
+
+document.getElementById('tracking-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') trackPackage();
+});
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.style.animationDelay = '0s'; });
+});
+document.querySelectorAll('.stat').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
